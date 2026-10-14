@@ -1,13 +1,14 @@
 /* Profiling code lives here */
 
-#include "engine_libc/eng_stdbool.h"
-#include "engine_libc/eng_stdint.h"
-#include "engine_libc/eng_stdio.h"
+#include "vat7_profiler.h"
 
-#include "engine_tools/eng_logging.h"
-#include "engine_tools/eng_assert.h"
-#include "engine_tools/eng_profiling.h"
-#include "engine_tools/eng_timing.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <assert.h>
+
+#include "vat7_timing.h"
+#include "vat7_logger.h"
 
 // TODO documentation for profiling
 // TODO Improve reporting and add instance subregion data
@@ -76,12 +77,12 @@ size_t _vt7_profiler_create (char *label)
 
 void _vt7_profiler_begin (size_t profile_id)
 {
-	ENG_ASSERT(profile_id < next_profile_index);
-	ENG_ASSERT(next_profile_index < MAX_PROFILES -1);
+	assert(profile_id < next_profile_index);
+	assert(next_profile_index < MAX_PROFILES -1);
 	profiles[profile_id].current_instance.parent_region_id =
 		active_profile;
 	active_profile = profile_id;
-	ENG_ASSERT(active_profile != SIZE_MAX);
+	assert(active_profile != SIZE_MAX);
 	profiles[profile_id].current_instance.begin_time =
 		ENG_timing_precision_count();
 }
@@ -89,7 +90,7 @@ void _vt7_profiler_begin (size_t profile_id)
 
 void _vt7_profiler_end (void)
 {
-	ENG_ASSERT(active_profile != SIZE_MAX);
+	assert(active_profile != SIZE_MAX);
 	uint64_t now = ENG_timing_precision_count();
 	uint64_t begin =
 		profiles[active_profile].current_instance.begin_time;
