@@ -3,6 +3,7 @@
 #include "vat7_profiler.h"
 
 #include <assert.h>
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -132,7 +133,7 @@ void _vt7_profiler_report (void)
 		for (size_t i = 0; i < next_profile_index; i++)
 		{
 			fprintf(f, "%s\n", profiles[i].label);
-			fprintf(f, " run count: %lu\n", profiles[i].run_count);
+			fprintf(f, " run count: %"PRIu64"\n", profiles[i].run_count);
 			double total_t = (double)profiles[i].total_time
 				/ (double)freq;
 			fprintf(f, " total time: %f seconds\n", total_t);
@@ -142,12 +143,12 @@ void _vt7_profiler_report (void)
 			double max_t = (1000.0 * (double)profiles[i].max_time)
 				/ (double)freq;
 			fprintf(f, " max time: %f milliseconds\n", max_t);
-			fprintf(f, " max time on count %lu\n",
+			fprintf(f, " max time on count %"PRIu64"\n",
 				profiles[i].max_on_count);
 			double min_t = (1000.0 * (double)profiles[i].min_time)
 				/ (double)freq;
 			fprintf(f, " min time: %f milliseconds\n", min_t);
-			fprintf(f, " min time on count %lu\n",
+			fprintf(f, " min time on count %"PRIu64"\n",
 				profiles[i].min_on_count);
 			fprintf(f, "\n");
 		}
