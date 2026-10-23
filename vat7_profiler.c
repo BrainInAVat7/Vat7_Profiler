@@ -2,13 +2,14 @@
 
 #include "vat7_profiler.h"
 
+#include <assert.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <assert.h>
 
-#include "vat7_timing.h"
-#include "vat7_logger.h"
+#include "timing/vat7_timing.h"
+#include "logging/vat7_logger.h"
 
 // TODO documentation for profiling
 // TODO Improve reporting and add instance subregion data
@@ -41,7 +42,7 @@ static _Atomic size_t next_profile_index = 0;
 _Thread_local static size_t active_profile = SIZE_MAX;
 
 
-size_t _vt7_profiler_create (char *label)
+size_t _vt7_profile_create (char *label)
 {
 	size_t profile_index;
 	__atomic_load(&next_profile_index, &profile_index, __ATOMIC_ACQUIRE);
@@ -64,18 +65,19 @@ size_t _vt7_profiler_create (char *label)
 		size_t profile_id = next_profile_index;
 		next_profile_index++;
 		profiles[profile_id] = new_profile;
-		INFO_LOG("%s profile created with id %zu", label, profile_id);
+		VT7_LOG_INFO("%s profile created with id %zu",
+			label, profile_id);
 		return profile_id;
 	}
 	else
 	{
-		WARNING_LOG("Too many profiles to create %s profile.", label);
+		VT7_LOG_WARNING("Too many profiles to create %s profile.", label);
 		return SIZE_MAX;
 	}
 }
 
 
-void _vt7_profiler_begin (size_t profile_id)
+void _vt7_profile_begin (size_t profile_id)
 {
 	assert(profile_id < next_profile_index);
 	assert(next_profile_index < MAX_PROFILES -1);
@@ -84,14 +86,14 @@ void _vt7_profiler_begin (size_t profile_id)
 	active_profile = profile_id;
 	assert(active_profile != SIZE_MAX);
 	profiles[profile_id].current_instance.begin_time =
-		ENG_timing_precision_count();
+		vat7_timing_count();
 }
 
 
-void _vt7_profiler_end (void)
+void _vt7_profile_end (void)
 {
 	assert(active_profile != SIZE_MAX);
-	uint64_t now = ENG_timing_precision_count();
+	uint64_t now = vat7_timing_count();
 	uint64_t begin =
 		profiles[active_profile].current_instance.begin_time;
 	uint64_t elapsed = now - begin;
@@ -115,15 +117,15 @@ void _vt7_profiler_end (void)
 }
 
 
-void _vt7_profile_report (void)
+void _vt7_profiler_report (void)
 {
 	static bool is_new_report = true;
-	uint64_t freq = ENG_timing_precision_frequency();
+	uint64_t freq = vat7_timing_frequency();
 	char *open_mode = is_new_report ? "w" : "a";
-	FILE *f = fopen("log/profiling.log", open_mode);
+	FILE *f = fopen("../log/profiling.log", open_mode);
 		if (f == NULL)
 		{
-			WARNING_LOG("Failed to open file for profiler report");
+			VT7_LOG_WARNING("Failed to open file for profiler report");
 			return;
 		}
 		fprintf(f, "PROFILING REPORT\n\n");

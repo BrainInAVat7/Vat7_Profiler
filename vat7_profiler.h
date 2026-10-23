@@ -4,11 +4,11 @@
 #define VAT7_PROFILER_H
 
 #include <stdbool.h>
-#include <stdint.h> // for SIZE_MAX
+#include <stddef.h> // for SIZE_MAX
 
 
 size_t _vt7_profile_create (char *label);
-void _vt7_profile__begin (size_t profile_id);
+void _vt7_profile_begin (size_t profile_id);
 void _vt7_profile_end (void);
 void _vt7_profiler_report (void);
 
@@ -30,9 +30,9 @@ void _vt7_profiler_report (void);
 
 #else
 
-#define PROFILE_BEGIN(label) do { } while(0)
-#define PROFILE_END() do { } while(0)
-#define PROFILER_REPORT() do { } while(0)
+#define VT7_PROFILE_BEGIN(label) do { } while(0)
+#define VT7_PROFILE_END() do { } while(0)
+#define VT7_PROFILE_REPORT() do { } while(0)
 
 
 #endif // profiling enabled
